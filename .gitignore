@@ -24,3 +24,4 @@ AutoPartition.app
 .rbenv-gemsets
 .project
 .ruby-version
+/.rhel_password

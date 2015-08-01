@@ -5,6 +5,7 @@ Gem::Specification.new do |s|
   s.name        = "veewee"
   s.version     = Veewee::VERSION
   s.platform    = Gem::Platform::RUBY
+  s.license     = 'MIT'
   s.authors     = ["Patrick Debois"]
   s.email       = ["patrick.debois@jedi.be"]
   s.homepage    = "http://github.com/jedi4ever/veewee/"
@@ -34,10 +35,12 @@ Gem::Specification.new do |s|
   s.add_dependency "fog", "~> 1.8"
   s.add_dependency "childprocess"
   s.add_dependency "grit"
-  s.add_dependency "fission", "0.4.0"
+  s.add_dependency "fission", "0.5.0"
+  s.add_dependency "to_slug"
   s.add_dependency "os", "~> 0.9.6"
+  s.add_dependency "gem-content", "~>1.0"
 
-  s.required_ruby_version = '>= 1.9.2'
+  s.required_ruby_version = '>= 1.9.3'
 
   # Modified dependency version, as libxml-ruby dependency has been removed in version 2.1.1
   # See : https://github.com/ckruse/CFPropertyList/issues/14
@@ -52,4 +55,8 @@ Gem::Specification.new do |s|
   s.files        = `git ls-files`.split("\n")
   s.executables  = `git ls-files`.split("\n").map { |f| f =~ /^bin\/(.*)/ ? $1 : nil }.compact
   s.require_path = 'lib'
+
+  s.metadata = {
+    "veewee-templates" => "templates"
+  }
 end

@@ -1,3 +1,4 @@
+require 'yaml'
 require 'ostruct'
 require 'veewee/provider/core/helper/iso'
 
@@ -20,7 +21,7 @@ module Veewee
 
     attr_accessor :boot_wait, :boot_cmd_sequence
 
-    attr_accessor :kickstart_port, :kickstart_ip, :kickstart_timeout, :kickstart_file
+    attr_accessor :kickstart_port, :kickstart_timeout, :kickstart_file
 
     attr_accessor :ssh_login_timeout, :ssh_user, :ssh_password, :ssh_key, :ssh_host_port, :ssh_guest_port
 
@@ -91,7 +92,7 @@ module Veewee
       #        :hostiocache => 'off' ,
       #        :os_type_id => 'Ubuntu',
       #        :boot_wait => "10", :boot_cmd_sequence => [ "boot"],
-      #        :kickstart_port => "7122", :kickstart_ip => "127.0.0.1", :kickstart_timeout => 10000,#
+      #        :kickstart_port => "7122", :kickstart_timeout => 60,#
       #        :ssh_login_timeout => "10000", :ssh_user => "vagrant", :ssh_password => "vagrant",:ssh_key => "",
       @ssh_host_port = "2222" ; @ssh_guest_port = "22"
       #        :ssh_host_port => "2222", :ssh_guest_port => "22", :sudo_cmd => "echo '%p'|sudo -S sh '%f'",
@@ -122,6 +123,18 @@ module Veewee
         env.logger.info("definition") { " - #{key} : #{options[key]}" }
       end
 
+    end
+
+    def declare_yaml(*files)
+      files.each do |file|
+        if Hash === file
+          env.logger.info("Reading hash options")
+        else
+          env.logger.info("Reading yaml file: #{file}")
+          file = YAML.load_file(file)
+        end
+        declare(file)
+      end
     end
 
     # Class method to loading a definition

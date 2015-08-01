@@ -6,7 +6,7 @@ Veewee::Definition.declare({
   :disk_size => '10140', :disk_format => 'VDI', :hostiocache => 'off',
   :os_type_id => 'Debian_64',
   :iso_file => "debian-7.3.0-amd64-netinst.iso",
-  :iso_src => "http://cdimage.debian.org/debian-cd/7.3.0/amd64/iso-cd/debian-7.3.0-amd64-netinst.iso",
+  :iso_src => "http://mirror.i3d.net/pub/debian-cd/7.3.0/amd64/iso-cd/debian-7.3.0-amd64-netinst.iso",
   :iso_md5 => "72473e8a5e65b61acc7efde90d9f71d1",
   :iso_download_timeout => "1000",
   :boot_wait => "10", :boot_cmd_sequence => [
@@ -27,7 +27,7 @@ Veewee::Definition.declare({
      '<Enter>'
   ],
   :kickstart_port => "7122",
-  :kickstart_timeout => "10000",
+  :kickstart_timeout => "300",
   :kickstart_file => "preseed.cfg",
   :ssh_login_timeout => "10000",
   :ssh_user => "vagrant",
@@ -45,6 +45,7 @@ Veewee::Definition.declare({
     "ruby.sh",
     "puppet.sh",
     "chef.sh",
+    "systemd.sh",
     "cleanup-virtualbox.sh",
     "cleanup.sh",
     "zerodisk.sh"

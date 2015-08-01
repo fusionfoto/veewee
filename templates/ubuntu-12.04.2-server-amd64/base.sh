@@ -1,3 +1,10 @@
+#!/bin/bash
+
+if [ -f .veewee_params ]
+then
+  . .veewee_params
+fi
+
 
 # Apt-install various things necessary for Ruby, guest additions,
 # etc., and remove optional things to trim down the machine.
@@ -10,7 +17,7 @@ apt-get clean
 
 # Set up sudo
 ( cat <<'EOP'
-%vagrant ALL=NOPASSWD:ALL
+%vagrant ALL=(ALL) NOPASSWD: ALL
 EOP
 ) > /tmp/vagrant
 chmod 0440 /tmp/vagrant

@@ -20,8 +20,6 @@ pkg/*
 virtualfloppy.vfd
 *.swp
 AutoPartition.app
-.ruby-version
-.rbenv-gemsets
+.rvmrc
 .project
-.ruby-version
 /.rhel_password

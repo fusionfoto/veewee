@@ -7,6 +7,7 @@ The following hooks are currently available:
 * `:after_create` after box is created
 * `:after_up` after box is started
 * `:after_boot_sequence` after boot command sequence is executed
+* `:before_postinstall` before post-install files are executed
 * `:after_postinstall` after post-install files are executed
 * `:before_ssh` before each SSH login
 
@@ -24,7 +25,7 @@ But if you want to copy arbitrary files to the guest you can do this in a hook.
 
 <pre>
 Veewee::Definition.declare({
-  hooks => {
+  :hooks => {
       :after_postinstall => Proc.new { definition.box.scp('/tmp/foo.txt', '/tmp/bar.txt') }
   }
 })
@@ -57,7 +58,7 @@ end
 myhooks = Hooks.new(veewee_definition)
 
 Veewee::Definition.declare({
-  hooks => {
+  :hooks => {
       :after_boot_sequence => Proc.new { myhooks.after_boot_sequence },
       :before_ssh => Proc.new { myhooks.before_ssh }
   }

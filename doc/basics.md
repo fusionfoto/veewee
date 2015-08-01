@@ -14,8 +14,8 @@ Each template folder name follows a naming scheme to help you choosing the right
 For example, the template for a Ubuntu 12.10 server (i386) basebox looks like this:
 
     ubuntu-12.10-server-i386[-netboot]
-    ^       ^           ^     ^ 
-    |       |           |     +----- install flavor                        
+    ^       ^           ^     ^
+    |       |           |     +----- install flavor
     |       |           +----- architecture
     |       +----- version
     +----- OS name
@@ -62,6 +62,17 @@ Veewee provides templates for a lot of different operation systems. To see all t
 
 Templates have the same structure as definitions, but templates are used to generate definitions. Definitions are simply **your** customizable templates that you can modify as you see fit.
 
+### Template sources
+
+Veewee will detect all gems with `veewee-templates` gemspec `metadata` pointing to templates directory:
+
+```ruby
+  spec.metadata = {
+    "veewee-templates" => "templates"
+  }
+```
+
+For example see [veewee.gemspec](../veewee.gemspec).
 
 ## Create a definition
 
@@ -74,6 +85,8 @@ To create a definition, use the `define` subcommand:
 If you want to use an external repository for the definition, you can specify a git URL:
 
     $ bundle exec veewee <provider> define 'myubuntubox' 'git://github.com/jedi4ever/myubuntubox'
+
+Can be `git://`, `git+ssh://` or `git+http://`.
 
 
 ## Modify a definition (optional)
@@ -95,9 +108,9 @@ Or you can remove the folder under `definitions`:
 
 ## Manage ISO files
 
-The distro ISOs (also called *disk images*) provide all files needed to install the OS. This file is essential for starting the installation process. 
+The distro ISOs (also called *disk images*) provide all files needed to install the OS. This file is essential for starting the installation process.
 
-If you already have an `.iso` file for the desired distribution on your disk, put it inside the `iso/` directory and make sure `definition.rb` is referencing the correct file. 
+If you already have an `.iso` file for the desired distribution on your disk, put it inside the `iso/` directory and make sure `definition.rb` is referencing the correct file.
 
 If an expected ISO is not found in the `iso/` directory, Veewee will ask you to download the ISO file from the web. Depending on your internet connection fetching an ISO file can take a while.
 
@@ -111,7 +124,7 @@ In order to build the defined box, execute this subcommand:
 The `build` subcommand can take the following optional flags:
 
 Flag Option                     | Description
---------------------------------|-------------    
+--------------------------------|-------------
 -f --force                      | overwrites if already exists
 -a --auto                       | automatically downloads the ISO without asking
 -n --nogui                      | builds in the background rather than opening a VM GUI and building in the GUI window
@@ -131,7 +144,7 @@ The `build` subcommand will run the following routines behind the scenes:
 * Mount the ISO file `:iso_file`
 * Boot up the machine and wait for `:boot_time`
 * Send the keystrokes in `:boot_cmd_sequence`
-* Start up a webserver on `:kickstart_port` to wait for a request from the `:kickstart_file`
+* Start up a webserver on `:kickstart_port` to wait `:kickstart_timeout` for a request for the `:kickstart_file`
   IMPORTANT: Do NOT navigate to the file in your browser or the server will stop and the installer will not be able to find your preseed
 * Wait for ssh login to work with `:ssh_user` and `:ssh_password`
 * `sudo` execute the `:postinstall_files`
@@ -173,7 +186,7 @@ Then use the `define` command to create a new definition with a custom name. The
     # You can now edit the definition files stored in definitions/myubuntubox or build the box with:
     # veewee vbox build 'myubuntubox'
 
-**IMPORTANT:** You should avoid dots in the name because the box name gets used as the hostname also. Dots in the box name currently lead to invalid hostnames which causes several negative side effects (e.g. preventing the network devices to start).    
+**IMPORTANT:** You should avoid dots and underscores in the name because the box name gets used as the hostname also. Dots in the box name currently lead to invalid hostnames which causes several negative side effects (e.g. preventing the network devices to start). Underscores might prevent the build altogether.
 
 Confirm that all expected files are in place:
 
@@ -196,7 +209,7 @@ Validation is highly recommended before requesting a fork pull on any modified t
 
 Finally let's export the box so it can be distributed or used by Vagrant:
 
-    $ bundle exec veewee vbox export 'myubuntubox'    
+    $ bundle exec veewee vbox export 'myubuntubox'
 
 
 ## Up Next

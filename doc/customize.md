@@ -92,7 +92,7 @@ All other settings are used internally by Veewee, the virtualization provider, o
             'initrd=/install/initrd.gz -- <Enter>'
         ],
         :kickstart_port => "7122",
-        :kickstart_timeout => "10000",
+        :kickstart_timeout => "60",
         :kickstart_file => "preseed.cfg",
         :ssh_login_timeout => "10000",
         :ssh_user => "vagrant",
@@ -128,7 +128,6 @@ Definition Option               | Default                 | Provider
 :boot_wait                      | uninitialised           | core
 :boot_cmd_sequence              | empty                   | core
 :kickstart_port                 | uninitialised           | core
-:kickstart_ip                   | uninitialised           | core
 :kickstart_timeout              | uninitialised           | core
 :kickstart_file                 | uninitialised           | core
 :ssh_login_timeout              | uninitialised           | kvm, parallels, virtualbox, vmfusion
@@ -191,6 +190,42 @@ Each provider _can_ take options that are specific the provider; more details wi
     })
 
 This box will have `pae` and `ioapic` enabled with VirtualBox, and will use the `brlxc0` bridge with KVM (on libvirt).
+
+## Using Yaml for storing configuration
+
+You can store definitions in `*.yml` files, loading them is as easy as:
+
+    Veewee::Definition.declare_yaml(filename1, filename2 ...)
+
+For example given those 3 files:
+
+    .
+    ├── definitions
+    │   └── myubuntubox
+    │       ├── definition.rb
+    │       ├── definition.yml
+    │       ├── 64bit.yml
+    │       ├── 32bit.yml
+    │       └── ...
+
+And `definition.rb` with
+
+    Veewee::Definition.declare_yaml('definition.yml', '64bit.yml')
+
+Then veewee will read first `definition.yml` and `64bit.yml`, this way
+it is possible to mix multiple possible combinations of systems,
+versions, and architectures. All the configurations available in
+`declare` are also valid in `*yml` files.
+
+You can also mix options with file names like:
+
+    Veewee::Definition.declare_yaml(
+      {:cpu_count => '1'},
+      filename1,
+      {:ssh_user => 'vagrant'},
+      filename2,
+      ...
+    )
 
 
 ## Up Next

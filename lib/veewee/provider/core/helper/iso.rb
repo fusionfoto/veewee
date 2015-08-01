@@ -31,33 +31,38 @@ module Veewee
             pbar = nil
             uri = URI.parse(url)
             uri.open(
-              :content_length_proc => lambda {|t|
-              if t && 0 < t
-                pbar = ProgressBar.new("Fetching file", t)
-                pbar.file_transfer_mode
-              end
-            },
+              :content_length_proc => lambda { |t|
+                if t && 0 < t
+                  pbar = ProgressBar.new("Fetching file", t)
+                  pbar.file_transfer_mode
+                end
+              },
               :progress_proc => lambda {|s|
-              pbar.set s if pbar
-            },
+                pbar.set s if pbar
+              },
               #consider proxy env vars only if host is not excluded
               :proxy => !no_proxy?(uri.host)
             ) { |src|
-              # We assume large 10K files, so this is tempfile object
-              env.logger.info "#{src.class}"
+              if
+                src.methods(&:to_sym).include?(:path)
+              then
+                # We assume large 10K files, so this is tempfile object
                 ui.info "Moving #{src.path} to #{localfile}"
                 # Force the close of the src stream to release handle before moving
                 # Not forcing the close may cause an issue on windows (Permission Denied)
                 src.close
                 FileUtils.mv(src.path,localfile)
-                #open(localfile,"wb") { |dst|
-                  #dst.write(src.read)
-                #}
+              else
+                open(localfile,"wb") { |dst|
+                  dst.write(src.read)
+                }
+              end
             }
           end
 
           #return true if host is excluded from proxy via no_proxy env var, false otherwise
           def no_proxy? host
+            return false if host.nil?
             @no_proxy ||= (ENV['NO_PROXY'] || ENV['no_proxy'] || 'localhost, 127.0.0.1').split(/\s*,\s*/)
             @no_proxy.each do |host_addr|
               return true if host.match(Regexp.quote(host_addr)+'$')

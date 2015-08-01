@@ -1,12 +1,19 @@
 # Veewee Installation
 
 Before installing Veewee, please see the [Requirements](requirements.md) doc.
+Currently supported versions of ruby: `1.9.3` to `2.2.1`
+##### IMPORTANT: For best results, please use the latest version of Ruby.
 
 ## Install as a gem
 
 The Veewee project is moving quickly and the Rubygem might be outdated. Therefore it may be wise to install Veewee from source.
 
     $ gem install veewee
+
+The above command may fail when using OS X Mavericks and XCode 5.1 due to [Apple telling the install to fail when unknown flags are used](http://stackoverflow.com/questions/22313407/clang-error-unknown-argument-mno-fused-madd-python-package-installation-fa#22315129). To get around this, use:
+
+	$ ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future gem install veewee
+	
 
 Projects that include the `veewee` gem can also benefit from utilizing Ruby version management (see below).
 
@@ -28,7 +35,7 @@ Installing Veewee without a Ruby version manager is **NOT** recommended:
 
 With RVM already installed (see [Requirements](requirements.md)), ensure a ruby version that's supported by Veewee is available on your machine:
 
-    $ rvm install 1.9.2
+    $ rvm install ruby
 
 Clone the veewee project from source:
 
@@ -38,7 +45,7 @@ Clone the veewee project from source:
 
 Set the local gemset and ruby version within the current directory:
 
-    $ rvm use 1.9.2@veewee --create
+    $ rvm use ruby@veewee --create
 
 Run `bundle install` to install Gemfile dependencies for our local gemset:
 
@@ -50,7 +57,7 @@ Run `bundle install` to install Gemfile dependencies for our local gemset:
 
 With rbenv already installed (see [Requirements](requirements.md)), ensure a ruby version that's supported by Veewee is available on your machine:
 
-    $ rbenv install 1.9.2-p320
+    $ rbenv install 2.2.1
     $ rbenv rehash
 
 Clone the veewee project from source:
@@ -61,7 +68,7 @@ Clone the veewee project from source:
 
 Set the local ruby version within the current directory:
 
-    $ rbenv local 1.9.2-p320
+    $ rbenv local 2.2.1
     $ rbenv rehash
 
 Run `bundle install` to install Gemfile dependencies for our selected ruby version:

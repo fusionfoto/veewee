@@ -18,7 +18,7 @@ def job_gen(args):
         for box_name in args.boxes:
             yield (provider, box_name, args.datestamp)
             # Don't hand out jobs too quickly (thundering herd at start)
-            time.sleep(35)
+            time.sleep(50)
 
 
 def build_box(job_args):

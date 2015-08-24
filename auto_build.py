@@ -10,6 +10,7 @@ import sys
 import time
 
 MY_DIR = os.path.dirname(__file__)
+LOG_DIR = '/tmp'  # TODO parameterize?
 
 
 def job_gen(args):
@@ -17,7 +18,7 @@ def job_gen(args):
         for box_name in args.boxes:
             yield (provider, box_name, args.datestamp)
             # Don't hand out jobs too quickly (thundering herd at start)
-            time.sleep(15)
+            time.sleep(35)
 
 
 def build_box(job_args):
@@ -27,15 +28,21 @@ def build_box(job_args):
         box_name, '-vmware' if provider == 'fusion' else '', datestamp))
 
     build_cmd = ['veewee', provider, 'build', box_name]
+    build_log_path = os.path.join(LOG_DIR, 'auto_build.%s.%s.%s.build.log' % (
+        box_name, provider, datestamp))
+    export_log_path = os.path.join(LOG_DIR,
+                                   'auto_build.%s.%s.%s.export.log' % (
+                                       box_name, provider, datestamp))
 
     my_pid = os.getpid()
     sys.stdout.write('%s: Running %r\n' % (my_pid, build_cmd))
     sys.stdout.flush()
     build = subprocess.Popen(build_cmd,
                              stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
+                             stderr=subprocess.STDOUT,
                              cwd=MY_DIR)
-    b_stdout, b_stderr = build.communicate()
+    b_stdout_err, _ = build.communicate()
+    open(build_log_path, 'wb').write(b_stdout_err)
     if build.returncode == 0:
         # Now export it (protected by a box-name lock
         if os.path.exists(exp_box_path):
@@ -47,20 +54,20 @@ def build_box(job_args):
             sys.stdout.write('%s: Running %r\n' % (my_pid, export_cmd))
             export = subprocess.Popen(export_cmd,
                                       stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE,
+                                      stderr=subprocess.STDOUT,
                                       cwd=MY_DIR)
-            e_stdout, e_stderr = export.communicate()
+            e_stdout_err, _ = export.communicate()
+            open(export_log_path, 'wb').write(e_stdout_err)
             if export.returncode == 0:
                 if os.path.exists(exp_box_path):
                     os.rename(exp_box_path, final_box_path)
-                    return provider, box_name, 0, '', ''
+                    return provider, box_name, 0, ''
                 else:
-                    return provider, box_name, 42, e_stdout, e_stderr
+                    return provider, box_name, 42, e_stdout_err
             else:
-                return (provider, box_name, export.returncode, e_stdout,
-                        e_stderr)
+                return provider, box_name, export.returncode, e_stdout_err
     else:
-        return provider, box_name, build.returncode, b_stdout, b_stderr
+        return provider, box_name, build.returncode, b_stdout_err
 
 
 if __name__ == '__main__':
@@ -71,7 +78,7 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         description='Automatically build one or more veeweebox in parallel')
     parser.add_argument('--job-count', '-j',
-                        type=int, default=3,
+                        type=int, default=2,
                         help='The number of boxes to build in parallel')
     parser.add_argument('--providers', '-p', type=str, default='vbox',
                         help='"vbox", "fusion", or "vbox,fusion"')
@@ -112,19 +119,18 @@ if __name__ == '__main__':
     pool = multiprocessing.Pool(args.job_count)
     results = pool.imap_unordered(build_box, job_gen(args))
 
-    for provider, box_name, rc, stdout, stderr in results:
+    for provider, box_name, rc, stdout_err in results:
         if rc == 0:
             print "SUCCESS built %s for %s" % (box_name, provider)
         else:
-            print ("FAILURE building %s for "
-                   "%s\nSTDOUT:\n\n%s\nSTDERR:\n\n%s" % (
-                       box_name, provider, stdout, stderr))
+            print ("FAILURE building %s for %s\nOUTPUT:\n\n%s" % (
+                box_name, provider, stdout_err))
         destroy_cmd = ['veewee', provider, 'destroy', box_name]
         destroy = subprocess.Popen(destroy_cmd,
                                    stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT,
                                    cwd=MY_DIR)
-        d_stdout, d_stderr = destroy.communicate()
+        d_stdout_err, _ = destroy.communicate()
         if destroy.returncode != 0:
-            print 'WARNING failed to destroy %s %s\n' % (
-                provider, box_name)
+            print 'WARNING failed to destroy %s %s\nOUTPUT:\n\n%s' % (
+                provider, box_name, d_stdout_err)

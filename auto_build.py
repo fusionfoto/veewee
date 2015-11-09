@@ -27,7 +27,7 @@ def build_box(job_args):
     final_box_path = os.path.join(MY_DIR, '%s%s-%s.box' % (
         box_name, '-vmware' if provider == 'fusion' else '', datestamp))
 
-    build_cmd = ['veewee', provider, 'build', box_name]
+    build_cmd = ['veewee', provider, 'build', box_name, '-a']
     build_log_path = os.path.join(LOG_DIR, 'auto_build.%s.%s.%s.build.log' % (
         box_name, provider, datestamp))
     export_log_path = os.path.join(LOG_DIR,

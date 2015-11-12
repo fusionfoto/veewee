@@ -23,7 +23,11 @@ module Veewee
         
         # Depending on the fusion version, we need to update the virtualhw version
         fusion_version = @provider.fusion_version
-        if fusion_version.start_with?('6.')
+        if fusion_version.start_with?('8.')
+          virtualhw_version = 12
+        elsif fusion_version.start_with?('7.')
+          virtualhw_version = 11
+        elsif fusion_version.start_with?('6.')
           virtualhw_version = 10
         elsif fusion_version.start_with?('5.')
           virtualhw_version = 9

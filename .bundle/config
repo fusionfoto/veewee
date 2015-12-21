@@ -1,2 +1,3 @@
---- 
+---
 BUNDLE_WITHOUT: kvm
+BUNDLE_RETRY: 3

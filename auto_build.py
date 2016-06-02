@@ -11,6 +11,7 @@ import time
 
 MY_DIR = os.path.dirname(__file__)
 LOG_DIR = '/tmp'  # TODO parameterize?
+VEEWEE_CMD_BASE = ['bundle', 'exec', 'veewee']
 
 
 def job_gen(args):
@@ -27,7 +28,7 @@ def build_box(job_args):
     final_box_path = os.path.join(MY_DIR, '%s%s-%s.box' % (
         box_name, '-vmware' if provider == 'fusion' else '', datestamp))
 
-    build_cmd = ['veewee', provider, 'build', box_name, '-a']
+    build_cmd = VEEWEE_CMD_BASE + [provider, 'build', box_name, '-a']
     build_log_path = os.path.join(LOG_DIR, 'auto_build.%s.%s.%s.build.log' % (
         box_name, provider, datestamp))
     export_log_path = os.path.join(LOG_DIR,
@@ -50,7 +51,7 @@ def build_box(job_args):
         if os.path.exists(final_box_path):
             os.unlink(final_box_path)
         with BOX_LOCKS[box_name]:
-            export_cmd = ['veewee', provider, 'export', box_name]
+            export_cmd = VEEWEE_CMD_BASE + [provider, 'export', box_name]
             sys.stdout.write('%s: Running %r\n' % (my_pid, export_cmd))
             export = subprocess.Popen(export_cmd,
                                       stdout=subprocess.PIPE,
@@ -103,8 +104,8 @@ if __name__ == '__main__':
     args.boxes = [
         n for n in os.listdir(args.definitions_dir)
         if os.path.exists(os.path.join(args.definitions_dir, n,
-                                       'definition.rb'))
-        and any(r.search(n) for r in box_regexes)]
+                                       'definition.rb')) and
+        any(r.search(n) for r in box_regexes)]
 
     if not args.boxes:
         parser.error('No boxes matched %r' % args.box_regexes)
@@ -125,7 +126,7 @@ if __name__ == '__main__':
         else:
             print ("FAILURE building %s for %s\nOUTPUT:\n\n%s" % (
                 box_name, provider, stdout_err))
-        destroy_cmd = ['veewee', provider, 'destroy', box_name]
+        destroy_cmd = VEEWEE_CMD_BASE + [provider, 'destroy', box_name]
         destroy = subprocess.Popen(destroy_cmd,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT,

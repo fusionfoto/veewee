@@ -24,3 +24,5 @@ AutoPartition.app
 .project
 /.rhel_password
 *~
+/logs
+/logs/*

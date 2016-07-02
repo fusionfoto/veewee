@@ -34,7 +34,7 @@ module Fission
       end
 
       @attributes['plist_file'] = File.expand_path('~/Library/Preferences/com.vmware.fusion.plist')
-      @attributes['gui_bin'] = '/Applications/VMware Fusion.app/Contents/MacOS/vmware'
+      @attributes['gui_bin'] = '/Applications/VMware Fusion.app/Contents/MacOS/VMWare Fusion'
 
       load_from_file
 

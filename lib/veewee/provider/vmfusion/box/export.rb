@@ -42,6 +42,9 @@ module Veewee
               env.ui.info "Exporting VM to #{options["export_type"]} box"
               FileUtils.cp_r(Dir["#{vm_path}/*"],tmpdir)
 
+              # Remove any stupid lock files before tar'ing up
+              shell_exec("find #{tmpdir} -name '*.lck' -print0 | xargs -0 -I{} rm -rf {}")
+
               # Inject a Vagrantfile unless one is provided
               if options['vagrantfile']
                 FileUtils.cp(options['vagrantfile'], File.join(tmpdir, 'Vagrantfile'))

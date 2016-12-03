@@ -27,7 +27,11 @@ def build_box(job_args):
     final_box_path = os.path.join(MY_DIR, '%s%s-%s.box' % (
         box_name, '-vmware' if provider == 'fusion' else '', datestamp))
 
-    build_cmd = VEEWEE_CMD_BASE + [provider, 'build', box_name, '-a']
+    # We try a destroy first (ignoring failure) in case a VM leaked earlier
+    # (--force doesn't seem to be sufficient?).
+    halt_cmd = VEEWEE_CMD_BASE + [provider, 'halt', box_name]
+    destroy_cmd = VEEWEE_CMD_BASE + [provider, 'destroy', box_name]
+    build_cmd = VEEWEE_CMD_BASE + [provider, 'build', box_name, '--auto']
     build_log_path = os.path.join(
         args.log_dir, 'auto_build.%s.%s.%s.build.log' % (
             box_name, provider, datestamp))
@@ -36,9 +40,14 @@ def build_box(job_args):
             box_name, provider, datestamp))
 
     my_pid = os.getpid()
-    sys.stdout.write('%s: Running %r\n' % (my_pid, build_cmd))
+    sys.stdout.write('%s: Running halt/destroy, then %r\n' % (
+        my_pid, build_cmd))
     sys.stdout.flush()
     with open(build_log_path, 'wb', 0) as build_log_fh:
+        subprocess.call(halt_cmd, stdout=build_log_fh,
+                        stderr=subprocess.STDOUT, cwd=MY_DIR)
+        subprocess.call(destroy_cmd, stdout=build_log_fh,
+                        stderr=subprocess.STDOUT, cwd=MY_DIR)
         build = subprocess.Popen(build_cmd,
                                  stdout=build_log_fh,
                                  stderr=subprocess.STDOUT,
@@ -133,8 +142,8 @@ if __name__ == '__main__':
             print "SUCCESS built %s for %s" % (box_name, provider)
         else:
             print ("FAILURE building or exporting %s for %s\n"
-                   "    SEE (use 'less -r') %s" % (box_name, provider,
-                                                   err_log_path))
+                   "    SEE: less -r %s" % (box_name, provider,
+                                            err_log_path))
         sys.stdout.flush()
         destroy_cmd = VEEWEE_CMD_BASE + [provider, 'destroy', box_name]
         destroy = subprocess.Popen(destroy_cmd,
